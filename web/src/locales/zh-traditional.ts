@@ -137,7 +137,7 @@ export default {
       fromMessage: '缺少起始頁碼',
       toPlaceholder: '到',
       toMessage: '缺少結束頁碼（不包含）',
-      layoutRecognize: '文件解析器',
+      layoutRecognize: 'PDF解析器',
       layoutRecognizeTip:
         '使用視覺模型進行 PDF 布局分析，以更好地識別文檔結構，找到標題、文字塊、圖像和表格的位置。若選擇 Naive 選項，則只能取得 PDF 的純文字。請注意此功能僅適用於 PDF 文檔，對其他文檔不生效。',
       taskPageSize: '任務頁面大小',
@@ -159,7 +159,7 @@ export default {
       rerankTip: `如果是空的。它使用查詢和塊的嵌入來構成矢量餘弦相似性。否則，它使用rerank評分代替矢量餘弦相似性。`,
       topK: 'Top-K',
       topKTip: `K塊將被送入Rerank型號。`,
-      delimiter: `分段標識符`,
+      delimiter: `文字分段標識符`,
       delimiterTip:
         '支援多字元作為分隔符，多字元分隔符用`包裹。如配置成這樣：\n`##`;那麼就會用換行，兩個#以及分號先對文字進行分割，然後按照「 token number」大小進行拼裝。',
       html4excel: '表格轉HTML',
@@ -206,7 +206,7 @@ export default {
       languagePlaceholder: '請輸入語言',
       permissions: '權限',
       embeddingModel: '嵌入模型',
-      chunkTokenNumber: '塊Token數',
+      chunkTokenNumber: '文字的區塊標記編號',
       chunkTokenNumberMessage: '塊Token數是必填項',
       embeddingModelTip:
         '用於嵌入塊的嵌入模型。一旦知識庫有了塊，它就無法更改。如果你想改變它，你需要刪除所有的塊。',
@@ -342,15 +342,15 @@ export default {
       tagSet: '標籤庫',
       topnTags: 'Top-N 標籤',
       tagSetTip: `
- <p> 選擇「標籤」知識庫有助於標記每個區塊。 </p>
-<p>對這些區塊的查詢也將帶有標籤。
-此過程將透過向資料集添加更多資訊來提高檢索精度，特別是當存在大量區塊時。
-<p>標籤和關鍵字的差異：</p>
-<ul>
- <li>標籤是一個閉集，由使用者定義和操作，而關鍵字是一個開集。
- <li>您需要在使用前上傳包含範例的標籤集。
- <li>關鍵字由 LLM 生成，既昂貴又耗時。
-</ul>
+      <p>請選擇一個或多個標籤集或標籤知識庫，用於對知識庫中的每個文本塊進行標記。</p>
+      <p>對這些文本塊的查詢也將自動關聯相應標籤。</p>
+      <p>此功能基於文本相似度，能夠為數據集的文本塊批量添加更多領域知識，從而顯著提高檢索準確性。該功能還能提升大量文本塊的操作效率。</p>
+      <p>為了更好地理解標籤集的作用，以下是標籤集和關鍵詞之間的主要區別：</p>
+      <ul>
+        <li>標籤集是一個由用戶定義和管理的封閉集，而自動生成的關鍵詞屬於開放集合。</li>
+        <li>在給你的知識庫文本塊批量打標籤之前，你需要先生成標籤集作為樣本。</li>
+        <li>自動關鍵詞功能中的關鍵詞由 LLM 生成，此過程相對耗時，並且會產生一定的 Token 消耗。</li>
+      </ul>
  `,
       tags: '標籤',
       addTag: '增加標籤',
@@ -413,7 +413,7 @@ export default {
       knowledgeBases: '知識庫',
       knowledgeBasesMessage: '請選擇',
       knowledgeBasesTip: '選擇關聯的知識庫。',
-      system: '系統',
+      system: '系統提示词',
       systemInitialValue: `你是一個智能助手，請總結知識庫的內容來回答問題，請列舉知識庫中的數據詳細回答。當所有知識庫內容都與問題無關時，你的回答必須包括“知識庫中未找到您要的答案！”這句話。回答需要考慮聊天歷史。
       以下是知識庫：
       {knowledge}
@@ -425,9 +425,9 @@ export default {
       topNTip: `並非所有相似度得分高於“相似度閾值”的塊都會被提供給法學碩士。LLM 只能看到這些“Top N”塊。`,
       variable: '變量',
       variableTip: `如果您使用对话 API，变量可能会帮助您使用不同的策略与客户聊天。
-        这些变量用于填写提示中的“系统”部分，以便给LLM一个提示。
+        这些变量用于填写提示中的“系统提示词”部分，以便给LLM一个提示。
         “知识”是一个非常特殊的变量，它将用检索到的块填充。
-        “System”中的所有变量都应该用大括号括起来。`,
+        “系统提示词”中的所有变量都应该用大括号括起来。`,
       add: '新增',
       key: '關鍵字',
       optional: '可選的',
@@ -435,7 +435,7 @@ export default {
       model: '模型',
       modelTip: '大語言聊天模型',
       modelMessage: '請選擇',
-      freedom: '自由',
+      freedom: '自由度',
       improvise: '即興創作',
       precise: '精確',
       balance: '平衡',
@@ -581,7 +581,7 @@ export default {
       img2txtModel: 'img2Txt模型',
       img2txtModelTip:
         '所有新創建的知識庫都將使用默認的多模塊模型。它可以描述圖片或視頻。',
-      sequence2txtModel: 'sequence2Txt模型',
+      sequence2txtModel: 'speech2Txt模型',
       sequence2txtModelTip:
         '所有新創建的知識庫都將使用默認的 ASR 模型。使用此模型將語音翻譯為相應的文本。',
       rerankModel: 'rerank模型',

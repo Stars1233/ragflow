@@ -13,12 +13,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
-import base64
-from pathlib import Path
 
 import pytest
 from common import DATASET_NAME_LIMIT, INVALID_API_TOKEN, create_dataset
 from libs.auth import RAGFlowHttpApiAuth
+from libs.utils import encode_avatar
+from libs.utils.file_utils import create_image_file
 
 
 class TestAuthorization:
@@ -75,18 +75,11 @@ class TestDatasetCreation:
 
 
 class TestAdvancedConfigurations:
-    def test_avatar(self, get_http_api_auth, request):
-        def encode_avatar(image_path):
-            with Path.open(image_path, "rb") as file:
-                binary_data = file.read()
-            base64_encoded = base64.b64encode(binary_data).decode("utf-8")
-            return base64_encoded
-
+    def test_avatar(self, get_http_api_auth, tmp_path):
+        fn = create_image_file(tmp_path / "ragflow_test.png")
         payload = {
             "name": "avatar_test",
-            "avatar": encode_avatar(
-                Path(request.config.rootdir) / "test/data/logo.svg"
-            ),
+            "avatar": encode_avatar(fn),
         }
         res = create_dataset(get_http_api_auth, payload)
         assert res["code"] == 0
@@ -101,9 +94,7 @@ class TestAdvancedConfigurations:
         [
             ("me", "me", 0),
             ("team", "team", 0),
-            pytest.param(
-                "empty_permission", "", 0, marks=pytest.mark.xfail(reason="issue#5709")
-            ),
+            ("empty_permission", "", 0),
             ("me_upercase", "ME", 102),
             ("team_upercase", "TEAM", 102),
             ("other_permission", "other_permission", 102),
@@ -134,12 +125,7 @@ class TestAdvancedConfigurations:
             ("picknowledge_graphture", "knowledge_graph", 0),
             ("email", "email", 0),
             ("tag", "tag", 0),
-            pytest.param(
-                "empty_chunk_method",
-                "",
-                0,
-                marks=pytest.mark.xfail(reason="issue#5709"),
-            ),
+            ("empty_chunk_method", "", 0),
             ("other_chunk_method", "other_chunk_method", 102),
         ],
     )

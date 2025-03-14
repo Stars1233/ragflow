@@ -135,7 +135,7 @@ def set_api_key():
 def add_llm():
     req = request.json
     factory = req["llm_factory"]
-    api_key = req.get("api_key", "")
+    api_key = req.get("api_key", "x")
     llm_name = req["llm_name"]
 
     def apikey_json(keys):
@@ -338,8 +338,6 @@ def list_app():
 
         llm_set = set([m["llm_name"] + "@" + m["fid"] for m in llms])
         for o in objs:
-            if not o.api_key:
-                continue
             if o.llm_name + "@" + o.llm_factory in llm_set:
                 continue
             llms.append({"llm_name": o.llm_name, "model_type": o.model_type, "fid": o.llm_factory, "available": True})
